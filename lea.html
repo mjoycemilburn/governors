@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Governors system LEA access</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+        <!-- open-iconic-bootstrap (icon set for bootstrap) -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
+
+        <style>
+            label {
+                display: inline-block;
+                width: 30rem;
+                text-align: right;
+                vertical-align: top;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class = 'container-fluid'>
+
+            <!-- dummy sidebar to make display look reasonable on large screens -->
+
+            <div class="row">
+
+                <div class= "col-md-2">
+                </div>
+
+                <div class = "col-md-8 col xs-12">        
+
+                    <h2 style="text-align: center;">Master Governing Body Selector</h2>
+
+                    <div id ="schoolselector" style="margin-top: 15vh;">
+                    </div>
+
+                </div>
+                <div class= "col-md-2">
+                </div>
+            </div>
+        </div>
+
+        <form id = 'dummyform'> <!-- dummy form used to communicate with php helper functions -->
+        </form>
+
+        <a id="launchanchor" hidden target = "_blank"></a> <!-- hidden button for document displays -->
+
+        <script>
+
+            window.onload = function () {
+
+                displaySchoolSelector()
+            }
+
+            function displaySchoolSelector() {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "display_school_selector");
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/lea_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('schoolselector').innerHTML = response;
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function launchSchoolPage() {
+
+                var schoolsselector = document.getElementById('schoolsselector');
+                var selectedSchoolId = schoolsselector.options[schoolsselector.selectedIndex].value;
+                schoolsselector.selectedIndex = 0; // reset to default so "onchange" wili work even if same school selected twice
+
+                if (selectedSchoolId == 0)
+                    return;
+
+                // add dummy version number to ensure page is refreshed
+                dateObject = new Date();
+                currentTime = dateObject.getTime();
+
+                var url = "pages.html?id=" + selectedSchoolId + "&target=governors&ver=" + currentTime;
+
+                var launchanchor = document.getElementById('launchanchor');
+                launchanchor.href = url;
+                launchanchor.click();
+            }
+
+        </script>  
+    </body>
+</html>
+

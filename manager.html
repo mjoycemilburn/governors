@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="description" 
+              content="Home page for Governors System Database Management : School Governor details, Meeting Attendance records">
+        <title>Governors</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">     
+
+        <!-- Bootstrap includes from https://www.w3schools.com/bootstrap4/tryit.asp?filename=trybs_carousel2 -->
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <!-- code for datepicker -->
+        <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+        <!-- sortableJS styles -->
+        <link rel="stylesheet" type="text/css" href="st/theme.css">
+        <!-- open-iconic-bootstrap (icon set for bootstrap) -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
+
+        <style>
+
+            .launchpadlink {
+                background: aquamarine;
+                color: black;
+                width: 8rem;
+                padding: .5em;
+                border: 1px solid black;
+                border-radius: .5em;
+                padding: .5em;
+                display: inline-block;
+                text-decoration: none !important;
+                margin: .5rem auto .5rem auto;
+            } 
+
+            div.ui-datepicker {
+                font-size:12px;
+                background: gainsboro;
+                border: 1px solid #555;
+                color: blue;
+            }
+
+            /* current input value background color */
+            .ui-datepicker-current-day
+            {
+                background: #83C948
+            }
+            /* today's background color */
+            .ui-datepicker-today 
+            {
+                background: #83C948
+            }
+
+            #ui-datepicker-div {z-index:9999 !important}
+
+            .cell {
+                display: inline-block;
+                margin-bottom: .25rem;
+                vertical-align: top;
+            }
+
+            .bold {
+                font-weight: bold;
+            }
+
+            .center {
+                text-align: center;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            label {
+                display: inline-block;
+                width: 15rem;
+                text-align: right;
+                vertical-align: top;
+                font-weight: bold;
+            }​
+
+        </style>
+
+    </head>
+    <body>
+
+        <form id = 'dummyform'> <!-- dummy form used to communicate with php helper functions -->
+        </form>
+
+        <a download id="downloadanchor" hidden></a>  <!-- hidden button for document downloads -->
+        <a id="launchanchor" hidden target = "_blank"></a> <!-- hidden button for document displays
+
+        <!--  ++++++++++++  Header ++++++++++++++++++++++++++ -->
+
+        <div style = 'margin: 2vh auto 2vh auto; width: 75%; text-align: center;'>
+            <div style ='padding: 2vh; background: white;'>
+
+                <!--  ++++++++++++  Controls ++++++++++++++++++++++++++ -->
+
+                <table style="width: 70%; margin: 2vh auto 2vh auto; border: 1px solid black; padding: 1.5vh; border-collapse: separate; background: white;">
+                    <tr> 
+                        <td>
+                            <a class="launchpadlink" title="Add/remove/edit Governor details"
+                               onclick = "firstAccess = true; displayGovernorsScreen('');">Manage<br>Governor Records</a>
+                        </td>
+                        <td>
+                            <a  class="launchpadlink" title="Record Attendance at Governor Meetings"
+                                onclick = "firstAccess = true; displayMeetingsScreen('', '', '', '');">Manage<br>Attendance Records</a>
+                        </td>
+                        <td>
+                            <a class="launchpadlink" title="Maintain online Document records"
+                               onclick = "firstAccess = true; displayDocumentsScreen('');">Manage<br> School Documents</a>
+                        </td>    
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!--  ++++++++++++  Active Control   ++++++++++++++++++++++++++ -->
+
+        <div id = 'currentcontrol'>
+        </div>
+
+        <!--  ++++++++++++  Support scripts   ++++++++++++++++++++++++++ -->
+
+        <script>
+
+            var firstAccess = true; //used to ensure control buttons still visible after new control displayed
+            window.onload = function () {
+                displayGovernorsScreen('')
+            }
+
+            ///////////////// Governors       
+
+            function displayGovernorsScreen(message) {
+
+                // The message parameter communicates the result of the last Governor update call
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_governing_body_update_table");
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+
+                            var currentcontrol = document.getElementById('currentcontrol');
+                            currentcontrol.innerHTML = response;
+                            if (!firstAccess) {
+                                currentcontrol.scrollIntoView({block: 'start', behavior: 'smooth'});
+                            }
+                            firstAccess = false;
+
+                            displaySuccessMessage(message);
+                            new Sortable(governorssortablelist, {
+                                animation: 150,
+                                ghostClass: 'sortable-ghost'
+                            });
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function displayGovernorInsertScreen() {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_governor_insert_screen");
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('currentcontrol').innerHTML = response;
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function displayGovernorUpdateScreen(governorId) {
+
+                // Take this in two bites in order to simplify th code. Start by displaying
+                // a basic input screen, then get the data for governorId and modify the
+                // values and buttons on the basic screen
+
+                var form1 = document.forms.namedItem("dummyform");
+                var oData1 = new FormData(form1);
+                oData1.append("helper_type", "build_governor_insert_screen");
+                var oReq1 = new XMLHttpRequest();
+                oReq1.open("POST", "php/manager_helpers.php", true);
+                oReq1.onload = function (oEvent) {
+                    if (oReq1.status == 200) {
+
+                        var response = oReq1.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq1.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+
+                            document.getElementById('currentcontrol').innerHTML = response;
+                            // OK - that's the basic screen loaded, now get the data for "governorId"
+
+                            var form2 = document.forms.namedItem("dummyform");
+                            var oData2 = new FormData(form2);
+                            oData2.append("helper_type", "get_governor_data");
+                            oData2.append("governor_id", governorId);
+                            var oReq2 = new XMLHttpRequest();
+                            oReq2.open("POST", "php/manager_helpers.php", true);
+                            oReq2.onload = function (oEvent) {
+                                if (oReq2.status == 200) {
+
+                                    var response = oReq2.responseText;
+                                    if (response.indexOf("%timed_out%") != -1) {
+                                        handleTimeout();
+                                        return;
+                                    }
+                                    var response = oReq2.responseText;
+                                    if (response.indexOf("%failed%") != -1) {
+                                        alert(response);
+                                    } else {
+                                        var xmlDoc = oReq2.responseXML;
+                                        var JSONString = xmlDoc.getElementsByTagName("returns")[0].childNodes[0].nodeValue;
+                                        var JSONObject = JSON.parse(JSONString);
+                                        var sysadExists = JSONObject.sysad_exists;
+                                        document.getElementById('governorfirstnames').value = JSONObject.governor_first_names;
+                                        document.getElementById('governorsurname').value = JSONObject.governor_surname;
+                                        var governorTypeCode = JSONObject.governor_type_code;
+                                        var governorRoleCode = JSONObject.governor_role_code;
+                                        var governorTypes = document.getElementsByName('governortypes');
+                                        var governorRoles = document.getElementsByName('governorroles');
+                                        governorTypes[governorTypeCode - 1].checked = true;
+                                        governorRoles[governorRoleCode - 1].checked = true;
+                                        document.getElementById('governorresponsibilities').value = JSONObject.governor_responsibilities;
+                                        document.getElementById('governortelephonenumber').value = JSONObject.governor_telephone_number;
+                                        document.getElementById('governoremailaddress').value = JSONObject.governor_email_address;
+                                        document.getElementById('governorpostaladdress').value = JSONObject.governor_postal_address;
+                                        document.getElementById('governorappointmentdate').value = JSONObject.governor_appointment_date;
+                                        document.getElementById('governortermofoffice').value = JSONObject.governor_term_of_office;
+                                        document.getElementById('governorbusinessinterests').value = JSONObject.governor_business_interests;
+                                        document.getElementById('buildgovernorbuttons').innerHTML =
+                                                "<button id = 'updatebutton'  type='button' class='btn-sm btn-primary' style = 'margin-left: 2vw;'" +
+                                                "title='Update the record for this Governor'" +
+                                                "onmousedown='updateGovernor(" + governorId + ");'>Update" +
+                                                "</button>" +
+                                                "<button id = 'cancelbutton'  type='button' class='btn-sm btn-primary' style = 'margin-left: 2vw;'" +
+                                                "title='Cancel the update'" +
+                                                "onmousedown='displayGovernorsScreen(\"Update cancelled\");'>Cancel" +
+                                                "</button>";
+                                        // give the surname field focus and make sure it is visible
+
+                                        document.getElementById("governorfirstnames").focus();
+                                    }
+                                }
+                            };
+                            oReq2.send(oData2);
+                        }
+
+                    }
+                };
+                oReq1.send(oData1);
+            }
+
+            function insertGovernor() {
+
+                if (governorDataIsValid()) {
+
+                    var form = document.forms.namedItem("governordata");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "insert_governor");
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/manager_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%timed_out%") != -1) {
+                                handleTimeout();
+                                return;
+                            }
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displayGovernorsScreen("New Governor added");
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+            function updateGovernor(governorId) {
+
+                if (governorDataIsValid()) {
+
+                    var form = document.forms.namedItem("governordata");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "update_governor");
+                    oData.append("governor_id", governorId);
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/manager_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%timed_out%") != -1) {
+                                handleTimeout();
+                                return;
+                            }
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displayGovernorsScreen("Governor record updated");
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+            function deleteGovernor(governorId, governorName) {
+
+                if (confirm('Do you really want to delete governor ' + governorName + '?')) {
+
+                    var form = document.forms.namedItem("dummyform");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "delete_governor");
+                    oData.append("governor_id", governorId);
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/manager_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%timed_out%") != -1) {
+                                handleTimeout();
+                                return;
+                            }
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displayGovernorsScreen('Governor record deleted');
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+            function reorderGovernors() {
+
+                // build a json listing the governor_ids for the current governorsUpdateView in
+                // their present order
+
+                var governors = document.getElementsByClassName('governorsentry');
+                var sequencedGovernorIds = [];
+                for (var i = 0; i < governors.length; i++) {
+                    sequencedGovernorIds[i] = governors[i].innerHTML;
+                }
+                sequencedGovernorIdsJson = JSON.stringify(sequencedGovernorIds);
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "reorder_governors");
+                oData.append("sequenced_governor_ids_json", sequencedGovernorIdsJson);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            displayGovernorsScreen("Reorder succeeded");
+                        }
+                    }
+                }
+                ;
+                oReq.send(oData);
+            }
+
+            var governorScreenValid;
+            function governorDataIsValid() {
+
+                // return true if the data contained in the Governor details display now
+                // occupying currentControl is valid
+
+                var governorfirstnames = document.getElementById('governorfirstnames');
+                var governorsurname = document.getElementById('governorsurname');
+                var governorresponsibilities = document.getElementById('governorresponsibilities');
+                var governorpostaladdress = document.getElementById('governorpostaladdress');
+                var governortelephonenumber = document.getElementById('governortelephonenumber');
+                var governoremailaddress = document.getElementById('governoremailaddress');
+                var governorappointmentdate = document.getElementById('governorappointmentdate');
+                var governortermofoffice = document.getElementById('governortermofoffice');
+                var governorbusinessinterests = document.getElementById('governorbusinessinterests');
+                var governorFirstNames = governorfirstnames.value;
+                var governorSurname = governorsurname.value;
+                var governorType = checkedRadioButton('governortypes');
+                var governorRole = checkedRadioButton('governorroles');
+                var governorResponsibilities = governorresponsibilities.value;
+                var governorPostalAddress = governorpostaladdress.value;
+                var governorTelephoneNumber = governortelephonenumber.value;
+                var governorEmailAddress = governoremailaddress.value;
+                var governorAppointmentDate = governorappointmentdate.value;
+                var governorTermOfOffice = governortermofoffice.value;
+                var governorBusinessInterests = governorbusinessinterests.value;
+                governorScreenValid = true;
+                if (governorFirstNames == '')
+                    injectErrorMessage('governorfirstnames', "Sorry - governor first names is a required field");
+                if (governorSurname == '')
+                    injectErrorMessage('governorsurname', "Sorry - governor surname is a required field");
+                if (governorType == '%failed%')
+                    injectErrorMessage('governorsurname', "Sorry - governor type  is a required field");
+                if (governorPostalAddress == '' && governorTelephoneNumber == '' && governorEmailAddress == '') {
+                    injectErrorMessage('governortelephonenumber', "Sorry - there must be at least one contact point for this governor");
+                    injectErrorMessage('governoremailaddress', "Sorry - there must be at least one contact point for this governor");
+                    injectErrorMessage('governorpostaladdress', "Sorry - there must be at least one contact point for this governor");
+                }
+
+                if (governorAppointmentDate > today())
+                    injectErrorMessage('appointmentdate', "Sorry - appointment date cannot be set in the future");
+                if (governorAppointmentDate == '')
+                    injectErrorMessage('appointmentdate', "Sorry - appointment date is a required field");
+                if (governorTermOfOffice < 1 || governorTermOfOffice > 4)
+                    injectErrorMessage('termofoffice', "Sorry - Term of Office must have a value of between 1 and 4 years");
+                return governorScreenValid;
+            }
+
+///////////////////////////   Clerks    
+
+
+            function displayClerkUpdateScreen() {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_clerk_update_screen");
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('currentcontrol').innerHTML = response;
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function updateClerk() {
+
+                if (clerkDataIsValid()) {
+
+                    var form = document.forms.namedItem("clerkdata");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "update_clerk");
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/manager_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%timed_out%") != -1) {
+                                handleTimeout();
+                                return;
+                            }
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displayGovernorsScreen("Clerk record updated");
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+
+            var clerkScreenValid;
+            function clerkDataIsValid() {
+
+                // return true if the data contained in the Clerk details display now
+                // occupying currentControl is valid
+
+                var clerkfirstnames = document.getElementById('clerkfirstnames');
+                var clerksurname = document.getElementById('clerksurname');
+                var clerkpostaladdress = document.getElementById('clerkpostaladdress');
+                var clerktelephonenumber = document.getElementById('clerktelephonenumber');
+                var clerkemailaddress = document.getElementById('clerkemailaddress');
+                var clerkFirstNames = clerkfirstnames.value;
+                var clerkSurname = clerksurname.value;
+                var clerkPostalAddress = clerkpostaladdress.value;
+                var clerkTelephoneNumber = clerktelephonenumber.value;
+                var clerkEmailAddress = clerkemailaddress.value;
+                clerkScreenValid = true;
+                if (clerkFirstNames == '')
+                    injectErrorMessage('clerkfirstnames', "Sorry - clerk first names is a required field");
+                if (clerkSurname == '')
+                    injectErrorMessage('clerksurname', "Sorry - clerk surname is a required field");
+                if (clerkPostalAddress == '' && clerkTelephoneNumber == '' && clerkEmailAddress == '') {
+                    injectErrorMessage('clerktelephonenumber', "Sorry - there must be at least one contact point for this clerk");
+                    injectErrorMessage('clerkemailaddress', "Sorry - there must be at least one contact point for this clerk");
+                    injectErrorMessage('clerkpostaladdress', "Sorry - there must be at least one contact point for this governor");
+                }
+
+                return clerkScreenValid;
+            }
+
+////////////////// Meetings
+
+            function displayMeetingsScreen(firstMeetingDate, lastMeetingDate, message, messageClass) {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_attendances_update_screen");
+                oData.append("first_meeting_date", firstMeetingDate);
+                oData.append("last_meeting_date", lastMeetingDate);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+
+                            var currentcontrol = document.getElementById('currentcontrol');
+                            currentcontrol.innerHTML = response;
+                            if (!firstAccess) {
+                                currentcontrol.scrollIntoView({block: 'start', behavior: 'smooth'});
+                            }
+                            firstAccess = false;
+                            if (messageClass == "success") {
+                                displaySuccessMessage(message);
+                            } else {
+                                displayFailureMessage(message);
+                            }
+                        }
+
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function displayMeetingInsertScreen() {
+
+                // this is awkward as we need to check the uniqueness of meeting date first and
+                // this means we'll have to next the aysnch insert code within an insert uniqueness
+
+                // get the date of the meeting from the insertmeetingdate element
+
+                var meetingDate = document.getElementById('insertmeetingdate').value;
+                var form1 = document.forms.namedItem("dummyform");
+                var oData1 = new FormData(form1);
+                oData1.append("helper_type", "test_for_unique_meeting_date");
+                oData1.append("meeting_date", meetingDate);
+                var oReq1 = new XMLHttpRequest();
+                oReq1.open("POST", "php/manager_helpers.php", true);
+                oReq1.onload = function (oEvent) {
+                    if (oReq1.status == 200) {
+
+                        var response = oReq1.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq1.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            if (response.indexOf("duplicate") != -1) {
+                                displayMeetingsScreen('', '', 'Oops - a meeting already exists for this date', 'failure');
+                                return;
+                            } else {
+
+                                var form2 = document.forms.namedItem("dummyform");
+                                var oData2 = new FormData(form2);
+                                oData2.append("helper_type", "build_meeting_insert_table");
+                                oData2.append("meeting_date", meetingDate);
+                                var oReq2 = new XMLHttpRequest();
+                                oReq2.open("POST", "php/manager_helpers.php", true);
+                                oReq2.onload = function (oEvent) {
+                                    if (oReq2.status == 200) {
+
+                                        var response = oReq2.responseText;
+                                        if (response.indexOf("%timed_out%") != -1) {
+                                            handleTimeout();
+                                            return;
+                                        }
+                                        var response = oReq2.responseText;
+                                        if (response.indexOf("%failed%") != -1) {
+                                            alert(response);
+                                        } else {
+                                            document.getElementById('currentcontrol').innerHTML = response;
+                                        }
+                                    }
+                                };
+                                oReq2.send(oData2);
+                            }
+                        }
+                    }
+                };
+                oReq1.send(oData1);
+            }
+
+            function insertMeeting(meetingDate) {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "insert_meeting");
+                oData.append("meeting_date", meetingDate);
+                // We need to build a parameter list for the governor checkboxes displayed in the current control
+                // These all have class "attendancecheckbox" so can be found from document.getElementsByClassName
+                // Note,we have previously used json's for this sort of thing, but this hardly seems worth it here
+
+                var checkboxes = document.getElementsByClassName("attendancecheckbox");
+                var checkboxValues = [];
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].checked) {
+                        checkboxValues.push('Y');
+                    } else {
+                        checkboxValues.push('N');
+                    }
+                }
+
+                // we also need the associated governor_ids. These are in hidden spans with class "governor"
+
+                var governors = document.getElementsByClassName("governor");
+                // The two arrays will have the same length and be in the same order. Combine them
+                // into an array of attendances of the form governor_id%checkbox_value. 
+
+                oData.append("attendances_count", checkboxes.length);
+                for (var i = 0; i < checkboxes.length; i++) {
+
+                    oData.append("attendance_" + i, governors[i].innerHTML + "%" + checkboxValues[i]);
+                }
+
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            displayMeetingsScreen('', '', "Meeting record inserted");
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function updateMeeting(meetingDate) {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "update_meeting");
+                oData.append("meeting_date", meetingDate);
+                // We need to build a parameter list for the governor checkboxes displayed in the current control
+                // These all have class "attendancecheckbox" + meetingDate so can be found from 
+                // document.getElementsByClassName. Note,we have previously used json's for this sort of thing, but 
+                // this hardly seems worth it here
+
+                var checkboxes = document.getElementsByClassName("attendancecheckbox" + meetingDate);
+                var checkboxValues = [];
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].checked) {
+                        checkboxValues.push('Y');
+                    } else {
+                        checkboxValues.push('N');
+                    }
+                }
+
+                // we also need the associated governor_ids. These are in hidden spans with class "governor" + meetingDate
+
+                var governors = document.getElementsByClassName("governor" + meetingDate);
+                // The two arrays will have the same length and be in the same order. Combine them
+                // into an array of attendances of the form governor_id%checkbox_value. 
+
+                oData.append("attendances_count", checkboxes.length);
+                for (var i = 0; i < checkboxes.length; i++) {
+
+                    oData.append("attendance_" + i, governors[i].innerHTML + "%" + checkboxValues[i]);
+                }
+
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            displayMeetingsScreen('', '', "Meeting record updated");
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function deleteMeeting(meetingDate) {
+
+                if (confirm('Do you really want to delete the meeting for ' + meetingDate + '?')) {
+
+                    var form = document.forms.namedItem("dummyform");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "delete_meeting");
+                    oData.append("meeting_date", meetingDate);
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/manager_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%timed_out%") != -1) {
+                                handleTimeout();
+                                return;
+                            }
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displayMeetingsScreen('', '', "Meeting record deleted");
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+////////////////// Documents
+
+            function displayDocumentsScreen(message) {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_documents_update_table");
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+
+                            var currentcontrol = document.getElementById('currentcontrol');
+                            currentcontrol.innerHTML = response;
+                            if (!firstAccess) {
+                                currentcontrol.scrollIntoView({block: 'start', behavior: 'smooth'});
+                            }
+                            firstAccess = false;
+                            displaySuccessMessage(message);
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function displayDocumentInsertScreen() {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_document_insert_screen");
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('currentcontrol').innerHTML = response;
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function insertDocument() {
+
+                if (documentDataIsValidForInsert()) {
+
+                    document.body.style.cursor = 'wait';
+
+                    var form = document.forms.namedItem("documentdata");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "insert_document");
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/manager_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            document.body.style.cursor = 'default';
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%timed_out%") != -1) {
+                                handleTimeout();
+                                return;
+                            }
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displayDocumentsScreen("New Document added");
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+            var documentScreenValid;
+            function documentDataIsValidForInsert() {
+
+                // return true if the data contained in the Governor details display now
+                // occupying currentControl is valid
+
+                var documentTitle = document.getElementById('documenttitle').value;
+                var documentAuthor = document.getElementById('documentauthor').value;
+                var documentSourceFilename = document.getElementById('documentsourcefilename').value;
+                var documentPdfFilename = document.getElementById('documentpdffilename').value;
+
+                documentScreenValid = true;
+
+                // note that "accept=" on file input elements should ensure that users are only able
+                // to select files with appropriate extensions
+
+                if (documentTitle == '')
+                    injectErrorMessage('documenttitle', "Sorry - document title is a required field");
+                if (documentAuthor == '')
+                    injectErrorMessage('documentauthor', "Sorry - document author is a required field");
+                if (documentSourceFilename == '')
+                    injectErrorMessage('documentsourcefilename', "Sorry - document source fie is a required field");
+                if (documentPdfFilename == '')
+                    injectErrorMessage('documentpdffilename', "Sorry - document pdf file is a required field");
+
+                return documentScreenValid;
+            }
+
+            function displayVersionInsertScreen(documentTitle) {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_version_insert_screen");
+                oData.append("document_title", documentTitle);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('currentcontrol').innerHTML = response;
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function insertVersion(documentTitle) {
+
+                if (versionDataIsValidForInsert()) {
+
+                    document.body.style.cursor = 'wait';
+
+                    var form = document.forms.namedItem("versiondata");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "insert_version");
+                    oData.append("document_title", documentTitle);
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/manager_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            document.body.style.cursor = 'default';
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%timed_out%") != -1) {
+                                handleTimeout();
+                                return;
+                            }
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displayDocumentsScreen("New Version added");
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+            var versionScreenValid;
+            function versionDataIsValidForInsert() {
+
+                // return true if the data contained in the Version insert display now
+                // occupying currentControl is valid
+
+                var documentAuthor = document.getElementById('documentauthor').value;
+                var documentSourceFilename = document.getElementById('documentsourcefilename').value;
+                var documentPdfFilename = document.getElementById('documentpdffilename').value;
+
+                versionScreenValid = true;
+
+                if (documentAuthor == '')
+                    injectErrorMessage('documentauthor', "Sorry - document author is a required field");
+                if (documentSourceFilename == '')
+                    injectErrorMessage('documentsourcefilename', "Sorry - document source fie is a required field");
+                if (documentPdfFilename == '')
+                    injectErrorMessage('documentpdffilename', "Sorry - document pdf file is a required field");
+
+                return versionScreenValid;
+            }
+
+            function resetDocumentsUpdateTableRow(rowNumber, maxVersionNumber) {
+
+                // Adjust the entry for documentId in the documentsScreen currently occupying currentControl.
+                // The new version number that has been requested is given by the selected option in the
+                // select tag. Get this version number
+
+                var versions = document.getElementById('versions' + rowNumber);
+                var selectedVersionNumber = versions.options[versions.selectedIndex].value;
+                // now need to get author and creation/review dates for this document version
+                var documentTitle = document.getElementById('title' + rowNumber).innerHTML;
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "reset_documents_update_table_row");
+                oData.append("row_number", rowNumber);
+                oData.append("document_title", documentTitle);
+                oData.append("version_number", selectedVersionNumber);
+                oData.append("max_version_number", maxVersionNumber);
+
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('row' + rowNumber).innerHTML = response;
+                        }
+                    }
+                }
+                ;
+                oReq.send(oData);
+            }
+
+            function displayDocumentReviewScreen(schoolId, documentTitle, maxVersionNumber) {
+
+                // Enables you to change the "last_reviwed_date" on the latest version. This is
+                // the only change permitted for a documt once created - says you've looked at 
+                // it and decided it's OK
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_document_review_screen");
+                oData.append("document_title", documentTitle);
+                oData.append("max_version_number", maxVersionNumber);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('currentcontrol').innerHTML = response;
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function updateDocument(schoolId, documentTitle, maxVersionNumber) {
+
+                // note that the key is schoolId, documentTtitle and maxVersionNumber as the system only
+                // permts users to update the latest version
+
+                var form = document.forms.namedItem("documentdata");
+                var oData = new FormData(form);
+                oData.append("helper_type", "update_document");
+                oData.append("document_title", documentTitle);
+                oData.append("max_version_number", maxVersionNumber);
+                oData.append("document_author", document.getElementById('documentauthor').value);
+                oData.append("document_issue_date", document.getElementById('documentissuedate').value);
+                oData.append("version_last_review_date", document.getElementById('versionlastreviewdate').value);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/manager_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%timed_out%") != -1) {
+                            handleTimeout();
+                            return;
+                        }
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            displayDocumentsScreen("Document updated");
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function deleteDocument(schoolId, documentTitle, maxVersionNumber) {
+
+                var deletionMessage = 'Do you really want to delete document ' + documentTitle + '? ' +
+                        '(Note that this will remove all versions of this document from the document store.)';
+                if (confirm(deletionMessage)) {
+
+                    var form = document.forms.namedItem("dummyform");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "delete_document");
+                    oData.append("document_title", documentTitle);
+                    oData.append("max_version_number", maxVersionNumber);
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/manager_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%timed_out%") != -1) {
+                                handleTimeout();
+                                return;
+                            }
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displayDocumentsScreen('Document deleted');
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+/////////////////  Service functions
+
+            function injectErrorMessage(field, errorMessage) {
+
+                // Insert "errorMessage" into the innerHTML of the error paragraph element associated
+                // with element "field" - assumed to have id "fielderror".
+                // 
+                // Also set the global governorScreenValid variable
+
+                var fielderrormessageid = field + "error";
+                document.getElementById(fielderrormessageid).innerHTML = errorMessage;
+                document.getElementById(fielderrormessageid).style.color = 'red';
+                governorScreenValid = false;
+                clerkScreenValid = false;
+                documentScreenValid = false;
+                versionScreenValid = false;
+            }
+
+            function checkedRadioButton(radioButtonname) {
+
+                // return the checked value of a radioButtons array, else "%failed%"
+
+                var radioButtons = document.getElementsByName(radioButtonname);
+                for (var i = 0; i < radioButtons.length; i++) {
+                    if (radioButtons[i].checked) {
+                        return radioButtons[i].value;
+                    }
+                }
+                return "%failed%";
+            }
+
+            function clearMessageArea() {
+
+                document.getElementById('messagearea').innerHTML = '';
+            }
+
+            function displaySuccessMessage(messageContent) {
+
+                document.getElementById('messagearea').innerHTML = messageContent;
+                document.getElementById('messagearea').style.color = 'blue';
+            }
+
+            function displayFailureMessage(messageContent) {
+
+                document.getElementById('messagearea').innerHTML = messageContent;
+                document.getElementById('messagearea').style.color = 'red';
+            }
+
+            function handleTimeout() {
+
+                // An attempt to execute a helper_function has returned a %timed-out% response. This
+                // might be a genuine timeout of the php session record or could be a hacking attempt.
+                // Either way invite the user to login
+
+                window.location.assign("login.html");
+            }
+
+            function applyDatepicker(elementId) {
+
+                var oldDate = document.getElementById(elementId).value;
+
+                $('#' + elementId).datepicker();
+                $('#' + elementId).datepicker('option', 'dateFormat', 'yy-mm-dd');
+                $('#' + elementId).datepicker('option', 'changeDay', true);
+                $('#' + elementId).datepicker('option', 'changeMonth', true);
+                $('#' + elementId).datepicker('option', 'changeYear', true);
+                $('#' + elementId).datepicker('option', 'yearRange', '1999:c');
+
+                $('#' + elementId).datepicker()
+                        .on('input change', function (e) {
+
+                            var newDate = document.getElementById(elementId).value;
+                            if (newDate == '')
+                                document.getElementById(elementId).value = oldDate;
+
+                        });
+
+            }
+
+            function today() {
+
+                // return today's date as yyyy-mm-dd
+
+                return new Date().toISOString().slice(0, 10); // "yyyy-mm-dd"
+            }
+
+            function downloadDocument(url) {
+
+                var downloadanchor = document.getElementById('downloadanchor');
+                downloadanchor.href = url;
+                downloadanchor.click();
+            }
+
+            function grabClipboardLink(url) {
+
+                var launchanchor = document.getElementById('launchanchor');
+                launchanchor.href = url;
+                launchanchor.click();
+            }
+
+        </script>
+
+        <!-- Latest Sortable         -->
+        <script src="sortable.js"></script>
+
+
+    </body>
+</html>
+
+
+

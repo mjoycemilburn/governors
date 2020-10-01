@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="description" 
+              content="Website pages for Governors System Database Management : School Governor details, Meeting Attendance records">
+        <title>Governors</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        
+        <!-- Bootstrap includes from https://www.w3schools.com/bootstrap4/tryit.asp?filename=trybs_carousel2 -->
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <!-- open-iconic-bootstrap (icon set for bootstrap) -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
+
+    </head>
+    <body>       
+
+        <!--  ++++++++++++  Standard page ++++++++++++++++++++++++++ -->
+
+        <div id = "wrapper" style = 'width: 100%;  height: 100vh; overflow: auto; background: gainsboro;'>
+            <div id = 'display' style ='width: 95%; margin: 5vh auto 5vh auto; overflow: auto; background: white;'>
+            </div>
+        </div>
+
+        <form id = 'dummyform'></form> <!-- dummy form used to communicate with php helper functions -->
+
+        <!--  ++++++++++++  Support scripts   ++++++++++++++++++++++++++ -->
+
+        <script>
+
+            window.onload = function () {
+                var schoolId = getUrlParameter('id');
+                var displayTarget = getUrlParameter('target');
+                if (displayTarget == "governors")
+                    displayGovernors(schoolId);
+                if (displayTarget == "busints")
+                    displayGovernorBusinessInterests(schoolId);
+                if (displayTarget == "attendances")
+                    displayAttendances(schoolId, '', '');
+            }
+
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(window.location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+
+            function displayGovernors(schoolId) {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_governing_body_display");
+                oData.append("school_id", schoolId);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/page_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('display').innerHTML = response;
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+            
+            function displayGovernorBusinessInterests(schoolId) {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_governing_body_interests_display");
+                oData.append("school_id", schoolId);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/page_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('display').innerHTML = response;
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+            
+            function displayAttendances(schoolId, firstMeetingDate, lastMeetingDate) {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_goveror_attendance_display");
+                oData.append("school_id", schoolId);
+                oData.append("first_meeting_date", firstMeetingDate);
+                oData.append("last_meeting_date", lastMeetingDate);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/page_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            document.getElementById('display').innerHTML = response;
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+        </script>
+
+    </body>
+</html>
+
+
+

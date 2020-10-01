@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Governors system signon</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <style>
+            label {
+                display: inline-block;
+                width: 15rem;
+                text-align: right;
+                vertical-align: top;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class = 'container-fluid'>
+
+            <!-- dummy sidebar to make display look reasonable on large screens -->
+
+            <div class="row">
+
+                <div class= "col-md-3">
+                </div>
+
+                <div class = "col-md-6 col xs-12">        
+
+                    <h2 style="text-align: center;">Governors system login</h2>
+
+                    <!-- see below for advice on login with carriage return - handy after autofill
+                    http://jennifermadden.com/javascript/stringEnterKeyDetector.html 
+                    
+                    note also that we're submitting via an XMLHttpRequest rather than using the form's
+                    native submit mechanism. This is just because this is the pattern elsewhere in 
+                    this application-->
+
+                    <form id = "loginform" 
+                          style="border: solid; width: 100%; padding: 4vh 1vw 4vh 1vw; 
+                          margin: 4vh auto 5vh auto;"   
+                          method="POST">    
+                        <p>
+                            <label for ="userid">User-id : </label>
+                            <input id = "userid" name = "userid" autofocus title="Your system user-id (usually your email address) for the governors system " 
+                                   maxlength="60" size="25" onKeyPress="checkEnter(event);">
+                        </p>
+                        <p>
+                            <label for ="password">Password : </label>
+                            <input id = "password" name = "password" autofocus title="Your password for the governors system " 
+                                   maxlength="30" size="12" onKeyPress="checkEnter(event);">
+                        </p>
+                        <p id = "loginpanelmessage" style = "width: 30vw; display: none;">&nbsp;
+                        </p>
+                        <label class = "formlabel"></label>&nbsp;&nbsp;
+                        <button  type="button" class = 'btn btn-primary' style="margin-top: 1em;" 
+                                 onclick = "login()">Login</button>&nbsp;&nbsp;&nbsp;
+                    </form>
+                </div>
+                <div class= "col-md-3">
+                </div>
+            </div>
+        </div>
+        <script>
+
+
+            function login() {
+
+                // might as well use the form to package the parameters
+
+                var form = document.forms.namedItem("loginform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "login");
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/login_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+
+                            if (response.indexOf("invalid") != -1) {
+                                loginpanelmessage.innerHTML = "Sorry, but this combination doesn't work";
+                                loginpanelmessage.style.display = "block";
+                                loginpanelmessage.style.color = "red";
+                            } else {
+                                var schoolId = response;
+
+                                // add dummy version number to ensure page is refreshed
+                                dateObject = new Date();
+                                currentTime = dateObject.getTime();
+                                window.location.assign("manager.html" + "?" + currentTime);
+                            }
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function checkEnter(e) {
+
+                // submit the form if we see a carriage return on any of the input fields
+
+                clearAllErrors();
+                var characterCode = e.keyCode;
+
+                if (characterCode == 13) { //if generated character code is equal to ascii 13 (if enter key)
+                    login();
+                }
+
+            }
+
+            function clearAllErrors() {
+                loginpanelmessage.style.display = "none";
+            }
+
+            window.onload = function () {
+                // autofocus doesn't always seem towork - force the pace
+                var temp = document.getElementById("userid").focus();
+            }
+
+
+
+        </script>  
+    </body>
+</html>
+
