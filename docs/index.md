@@ -17,7 +17,7 @@ Clicking the "Add new governor" button reveals a governor insert form:
 
 ![website example](screens/screen2.png)
 
-Back on the Governor summary panel, the update and delete buttons provide tools to manage reords for individual governors. Following repeated changes to the Governng Body, it may be felt that the order of the records displayed in the table is not best suited to display on the website. In this case, "drag and drop" can be used to change the order visually. Once the "Reorder" button is clicked, the new ordering will be applied permanently to the data-store.
+Back on the Governor summary panel, the update and delete buttons provide tools to manage reords for individual governors. Following repeated changes to the Governng Body, it may be felt that the order of the records displayed in the table is not best suited to display on the website. In this case, "drag and drop" can be used to change the order visually. Once the "Reorder" button is clicked, the new ordering will be applied permanently to the data-store. Retirement of a Governor from the Governong Body is signalled by deleting his/her record.
 
 Every Governing Body must have a clerk so a dummy record is created automatically when a new school is registered and is immediately available for amendment.
 
@@ -35,3 +35,6 @@ A new meeting is inserted into the system's data-store by using the "datepicker"
 
 ![website example](screens/screen5.png)
 
+A governor's attendance at the new meeting is recorded by clicking the associated checkbox. The completed record is recorded permanently in the data store by clicking the Insert button and the meeting summary is re-displayed. If it is then realised that further amendment is required, this can be achieved by adjusting the checkboxes for a meeting and clicking the Update button.
+
+Note that, although the meetings summary screen only displays the most recent four meeting, the full meeting history is available and can be revealed by clicking the "caret" symbols to left and right of the display. Also note, however, that once a governor has been deleted, records of their attendance at meetings are also deleted.
