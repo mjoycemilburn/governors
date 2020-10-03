@@ -17,7 +17,7 @@ Clicking the "Add new governor" button reveals a governor insert form:
 
 ![website example](screens/screen2.png)
 
-Back on the Governor summary panel, the update and delete buttons provide tools to manage reords for individual governors.
+Back on the Governor summary panel, the update and delete buttons provide tools to manage reords for individual governors. Following repeated changes to the Governng Body, it may be felt that the order of the records displayed in the table is not best suited to display on the website. In this case, "drag and drop" can be used to change the order visually. Once the "Reorder" button is clicked, the new ordering will be applied permanently to the data-store.
 
 Every Governing Body must have a clerk so a dummy record is created automatically when a new school is registered and is immediately available for amendment.
 
