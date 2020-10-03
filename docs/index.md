@@ -49,4 +49,7 @@ A school's Governing Body is responsible for initiating and approving many of it
 
 Provision of a "changes log" to compare the source of successive versions is beyond the scope of the governors system, but at least it can ensure that the source for these versions is available for download and manual comparison.
 
+An example of the management screen for creating and updating document records is shown below:
+
+![website example](screens/screen7.png)
 
