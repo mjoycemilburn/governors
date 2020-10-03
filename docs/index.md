@@ -31,10 +31,16 @@ Clicking the "Manage Meetings Records" buttons reveals a screen similar to that 
 
 ![website example](screens/screen4.png)
 
-A new meeting is inserted into the system's data-store by using the "datepicker" to enter the meeting's date in the add new meeting" button. This in turn reveals an attendance-ipout form as shown below:
+A new meeting is inserted into the system's data-store by using the "datepicker" to enter the meeting's date in the add new meeting" button. This in turn reveals an attendance-input form as shown below:
 
 ![website example](screens/screen5.png)
 
 A governor's attendance at the new meeting is recorded by clicking the associated checkbox. The completed record is recorded permanently in the data store by clicking the Insert button and the meeting summary is re-displayed. If it is then realised that further amendment is required, this can be achieved by adjusting the checkboxes for a meeting and clicking the Update button.
 
-Note that, although the meetings summary screen only displays the most recent four meeting, the full meeting history is available and can be revealed by clicking the "caret" symbols to left and right of the display. Also note, however, that once a governor has been deleted, records of their attendance at meetings are also deleted.
+Note that, although the meetings summary screen only displays the most recent four meeting, the full meeting history is available and can be revealed by clicking the "caret" symbols to left and right of the summary display. Also note, however, that once a governor has been deleted, records of their attendance at meetings are also deleted.
+
+A website page to display Governor Meeting Attendance is availbel via the "Get Attendances Link" button at the foot of the page. An example is shown below:
+
+![website example](screens/screen6.png)
+
+## Documents Data
