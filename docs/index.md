@@ -6,6 +6,8 @@ The system will respond by requesting user-id and password credentials. These  w
 
 On successful login, the system will display an initial screen similar to that shown below for demo school "Newbiggin".
 
+![website example](screens/screen1.png)
+
 As can be seen, the system targets three areas of data : governor-details, meeting-details/governor-attendances and school documents. The system's focus is switched by clicking one of the three buttons displayeed in the top panel of the screen. By default, the system is initially focussed on Governor details and displays, in the lower panels, a summary of the members of the governog body together with associated data-management buttons.
 
 
