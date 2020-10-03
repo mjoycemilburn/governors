@@ -1,3 +1,3 @@
-# Introduction to the 8governors* system
+# Introduction to the *governors* system
 
 
