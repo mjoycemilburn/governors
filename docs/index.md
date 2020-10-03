@@ -44,3 +44,9 @@ A website page to display Governor Meeting Attendance is availbel via the "Get A
 ![website example](screens/screen6.png)
 
 ## Documents Data
+
+A school's Governing Body is responsible for initiating and approving many of its policies. These documents will start life in the school's office systems a where they are likely to be exchanged between staff members and governors by Microsoft OneDrive or Google's Dropbox. At some point, however, once approved, document versions become fixed and need to be published on the school's website. The governors system provides a simple document management facility to create permanent records of documents one they reach this stage. Documents are identified by "document title" and tagged by version number. For each version, the system stores both a copy of the orginal source (to provide a baseline for production of the next version) and a corresponding pdf version (for display on the school's website). In this way the system captures the milestone "release" history of key documents.
+
+Provision of a "changes log" to compare the source of successive versions is beyond the scope of the governors system, but at least it can ensure that the source for these versions is available for download and manual comparison.
+
+
