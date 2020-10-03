@@ -57,5 +57,5 @@ As can be seen, the screen allows you to record both completely new documents (i
 
 Where a document needs to be displayed on the school's website, the "Get pdf link" button may be used to display the associated pdf version. Where this is used to display the pdf file for the latest version of the document, the link produced will be tagged as "latest" and, if inserted into the school website, will automatically point the website to the latest version - ie any new version added to the document store will automatically appeer on the website.
 
-In the case where one needs to review earlier versions of a document, the select list on the version number field for the document can be used to select the required version.
+In the case where one needs to review earlier versions of a document, the "pull-down" list on the version number field for the document can be used to select the required version.
 
