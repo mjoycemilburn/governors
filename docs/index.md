@@ -4,11 +4,14 @@ If the system has been installed in url "mygovernors.com", the maintenance progr
 
 The system will respond by requesting user-id and password credentials. These  will have been supplied when you register for use of the system and associate your user_id (typically a clerk email address) with the school's entries in the system's data-stores.
 
+The system targets three areas of data : governor-details, meeting-details/governor-attendances and school documents. The system's focus is switched by clicking one of the three buttons displayeed in the top panel of the screen. By default, the system is initially focussed on Governor details and displays, in the lower panels, a summary of the members of the governog body together with associated data-management buttons.
+
+# Governor Details
+
 On successful login, the system will display an initial screen similar to that shown below for demo school "Newbiggin".
 
 ![website example](screens/screen1.png)
 
-The system targets three areas of data : governor-details, meeting-details/governor-attendances and school documents. The system's focus is switched by clicking one of the three buttons displayeed in the top panel of the screen. By default, the system is initially focussed on Governor details and displays, in the lower panels, a summary of the members of the governog body together with associated data-management buttons.
 
 Clicking the "Add new governor" button reveals a governor insert form:
 
