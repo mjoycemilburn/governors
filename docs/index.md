@@ -31,3 +31,7 @@ Clicking the "Manage Meetings Records" buttons reveals a screen similar to that 
 
 ![website example](screens/screen4.png)
 
+A new meeting is inserted into the system's data-store by using the "datepicker" to enter the meeting's date in the add new meeting" button. This in turn reveals an attendance-ipout form as shown below:
+
+![website example](screens/screen5.png)
+
