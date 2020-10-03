@@ -4,4 +4,4 @@ The motivation behind development of the system stems from the fact that the GB 
 
 The governors system is written in Javascript and PHP and uses a MySQL database to maintain its records. The idea is that a sponsoring LEA, or a group of school who appreciate the advantages of using a shared system, might acquire a server resource and install the governors software thereon. A description of the installation procedure is pgorvided in the INSTALLATION_GUIDE.md document above.
 
-A full description of the system with accompanying screen shots can be viewed on ?
+A full description of the system with accompanying screen shots can be viewed on [https://mjoycemilburn.github.io/governors/](https://mjoycemilburn.github.io/governors/)
