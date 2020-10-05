@@ -1,6 +1,6 @@
 ## User Guide to the *governors* System
 
-A school's Governing Body records are managed by using the *governors* system's magaer.html page. If the system has been installed in url "mygovernors.com", the maintenance program is launched by referencing url mygovernors.com/manager.html
+A school's Governing Body records are managed by using the *governors* system's manager.html page. If the system has been installed in url "mygovernors.com", the maintenance program is launched by referencing url mygovernors.com/manager.html
 
 The system will respond by requesting user-id and password credentials. These  will have been supplied when you register for use of the system and associate your user_id (typically a clerk email address) with the school's entries in the system's data-stores.
 
