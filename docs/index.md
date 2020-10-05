@@ -1,3 +1,6 @@
+---
+layout: default
+---
 ## User Guide to the *governors* System
 
 A school's Governing Body records are managed by using the *governors* system's manager.html page. If the system has been installed in url "mygovernors.com", the maintenance program is launched by referencing url mygovernors.com/manager.html
