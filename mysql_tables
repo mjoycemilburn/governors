@@ -366,6 +366,7 @@ ALTER TABLE `documents`
 --
 ALTER TABLE `governors`
   ADD PRIMARY KEY (`school_id`,`governor_id`);
+  ADD UNIQUE KEY `governor_id` (`governor_id`);
 
 --
 -- Indexes for table `governor_meeting_attendances`
@@ -413,6 +414,13 @@ ALTER TABLE `users`
 --
 ALTER TABLE `governors`
   MODIFY `governor_id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  
+
+--
+-- AUTO_INCREMENT for table `schools`
+--
+ALTER TABLE `schools`
+  MODIFY `school_id` int(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;  
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
