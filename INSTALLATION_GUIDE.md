@@ -1,6 +1,6 @@
 ## Step 1
 
-This document expects that you are familiar with the procedure for procedure for obtaining an ISP account, registering a UR and uploading files onto public_html, so it is assumed that your starting point is the download of the zip file for the latest release of "governors". 
+This document expects that you are familiar with the procedure for procedure for obtaining an ISP account, registering a UR and uploading files onto public_html, so it is assumed that your starting point is the download of the zip file for the latest release of "governors".
 
 Once you've downloaded this, unzip the files and then upload them into an appropriate directory on the server. It is suggested that if you have more than one system on your URL that you give each system its own directory. In this case the entire unzipped file hierarchy might be uploaded into a /governors directory, for example. Alternatively, you might as well just upload into public_html - the software uses relative addressing so won't mind.
 
@@ -15,3 +15,5 @@ You now need to create connect and disconnect php scripts for the database and p
 The system provides a mechanism for the LEA administrator to register new schools in the system and issue access credentials for their clerks. This creates an issue over the security of this procedure.  The lea.html page, whose primary responsibility is to provide the LEA administrator with the ability to view the governor records for a school also incudes, at its foot, a special login to provide access to the credentials administration screens. The password for this login is delivered by placing a hidden file, lea_credentials.php, in the server root. First edit this to give the lea administrator an appropriate password (it is currently set to 'cumbria%') and then move the file into the root directory.
 
 Alternatively it would be possible to create an automated arrangement whereby schools registered themselves but, for the present, development of such an arrangement is left simply as a future possibility.
+
+MartinJ : Oct 2020
