@@ -148,14 +148,11 @@ function build_documents_update_table_row(
     // $max_version_number is the highest version number currently defined for $school_id and $document_title
 
     if ($version_number == $max_version_number) {
-        $pdf_link = "../school_$school_id/$document_title" . "_LATEST.pdf";
-        $pdf_weblink = "/governors/school_$school_id/$document_title" . "_LATEST.pdf";
+        $pdf_weblink = "school_$school_id/$document_title" . "_LATEST.pdf";
     } else {
-        $pdf_link = "../school_$school_id/$document_title" . "_VERSION_$version_number.pdf";
-        $pdf_weblink = "/governors/school_$school_id/$document_title" . "_VERSION_$version_number.pdf";
+        $pdf_weblink = "school_$school_id/$document_title" . "_VERSION_$version_number.pdf";
     }
 
-    $src_link = '';
     $src_weblink = '';
 
     // Get the address of the source for this document version. Since we're not recording its
@@ -169,8 +166,7 @@ function build_documents_update_table_row(
                 $pieces = explode(".", $files[$i]);
                 if ($pieces[0] == "$document_title" . "_VERSION_$version_number" &&
                         $pieces[1] != "pdf") {
-                    $src_link = "../school_$school_id/$document_title" . "_VERSION_$version_number.$pieces[1]";
-                    $src_weblink = "/governors/school_$school_id/$document_title" . "_VERSION_$version_number.$pieces[1]";
+                    $src_weblink = "school_$school_id/$document_title" . "_VERSION_$version_number.$pieces[1]";
                     break;
                 }
             }
