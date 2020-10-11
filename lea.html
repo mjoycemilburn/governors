@@ -10,14 +10,19 @@
         <!-- open-iconic-bootstrap (icon set for bootstrap) -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
 
-        <style>
+        <style> 
             label {
                 display: inline-block;
-                width: 30rem;
+                width: 15rem;
                 text-align: right;
                 vertical-align: top;
                 font-weight: bold;
             }
+
+            .formerrormessage {
+                margin-left: 16rem;
+            }
+
         </style>
     </head>
     <body>
@@ -30,11 +35,11 @@
                 <div class= "col-md-2">
                 </div>
 
-                <div class = "col-md-8 col xs-12">        
+                <div class = "col-md-8 col xs-12">
 
-                    <h2 style="text-align: center;">Master Governing Body Selector</h2>
+                    <h2 style="text-align: center; margin-top: 3vh;">School Governing Body Selector</h2>
 
-                    <div id ="schoolselector" style="margin-top: 15vh;">
+                    <div id ="schoolselector" style="margin-top: 10vh;">
                     </div>
 
                 </div>
@@ -76,6 +81,269 @@
                 oReq.send(oData);
             }
 
+            var schoolNames;
+            var userIds;
+            function displaySchoolsManagementScreen(message) {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "build_schools_management_screen");
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/lea_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+
+                            var xmlDoc = oReq.responseXML;
+                            var JSONString = xmlDoc.getElementsByTagName("returns")[0].childNodes[0].nodeValue;
+                            var JSONObject = JSON.parse(JSONString);
+
+                            response = JSONObject.return;
+                            schoolNames = JSONObject.school_names;
+                            userIds = JSONObject.user_ids;
+
+                            document.getElementById('schoolselector').innerHTML = response;
+                            document.getElementById('messagearea').innerHTML = message;
+                            document.getElementById('messagearea').style.color = 'blue';
+
+                            // if the message is blank can safely assume we're logged in so can blank
+                            // the logindiv and display the managementdiv. All calls to displaySchoolsManagementScreen
+                            // will have a message except for the initial login request
+
+                            if (message != '') {
+                                document.getElementById('lealogindiv').style.display = "none";
+                                document.getElementById('leaschoolmanagementdiv').style.display = "block";
+                            }
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function validateLEAPassword() {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "validate_lea_password");
+                oData.append("lea_password", document.getElementById('leapassword').value);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/lea_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            if (response.indexOf("invalid") != -1) {
+                                injectErrorMessage('leapassword', "Sorry - this password is incorrect");
+                            } else {
+
+                                // reveal the leaschoolmanagementdiv hidden in the current schoolselector element
+
+                                document.getElementById('leaschoolmanagementdiv').style.display = "block";
+                            }
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            var selectedSchoolId;
+            function displayOldSchoolParameters() {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "get_school_data");
+                var schoolsselector = document.getElementById('schoolsselector');
+                selectedSchoolId = schoolsselector.options[schoolsselector.selectedIndex].value;
+                schoolsselector.selectedIndex = 0; // reset to default so "onchange" wili work even if same school selected twice
+
+                if (selectedSchoolId == 0)
+                    return;
+                oData.append("school_id", selectedSchoolId);
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/lea_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            var xmlDoc = oReq.responseXML;
+                            var JSONString = xmlDoc.getElementsByTagName("returns")[0].childNodes[0].nodeValue;
+                            var JSONObject = JSON.parse(JSONString);
+                            var schoolName = JSONObject.school_name;
+                            var userId = JSONObject.user_id;
+                            var password = JSONObject.password;
+
+                            document.getElementById('oldschoolname').placeholder = schoolName;
+                            document.getElementById('olduserid').placeholder = userId;
+                            document.getElementById('oldpassword').placeholder = password;
+
+                            document.getElementById('oldschoolname').value = schoolName;
+                            document.getElementById('olduserid').value = userId;
+                            document.getElementById('oldpassword').value = password;
+
+                            document.getElementById('oldschoolparameters').style.display = 'block';
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            function insertSchool() {
+
+                if (schoolDataIsValidForInsert()) {
+
+                    var form = document.forms.namedItem("dummyform");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "insert_school");
+
+                    oData.append("school_name", document.getElementById('schoolname').value);
+                    oData.append("user_id", document.getElementById('clerkid').value);
+                    oData.append("password", document.getElementById('clerkpassword').value);
+
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/lea_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displaySchoolsManagementScreen("School inserted successfully")
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+            function updateSchool() {
+
+                if (schoolDataIsValidForUpdate()) {
+
+                    var form = document.forms.namedItem("dummyform");
+                    var oData = new FormData(form);
+                    oData.append("helper_type", "update_school");
+
+                    oData.append("school_id", selectedSchoolId);
+                    oData.append("school_name", document.getElementById('oldschoolname').value);
+                    oData.append("user_id", document.getElementById('olduserid').value);
+                    oData.append("password", document.getElementById('oldpassword').value);
+
+                    var oReq = new XMLHttpRequest();
+                    oReq.open("POST", "php/lea_helpers.php", true);
+                    oReq.onload = function (oEvent) {
+                        if (oReq.status == 200) {
+
+                            var response = oReq.responseText;
+                            if (response.indexOf("%failed%") != -1) {
+                                alert(response);
+                            } else {
+                                displaySchoolsManagementScreen("School updated successfully")
+                            }
+                        }
+                    };
+                    oReq.send(oData);
+                }
+            }
+
+            function deleteSchool() {
+
+                var form = document.forms.namedItem("dummyform");
+                var oData = new FormData(form);
+                oData.append("helper_type", "delete_school");
+                oData.append("school_id", selectedSchoolId);
+
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", "php/lea_helpers.php", true);
+                oReq.onload = function (oEvent) {
+                    if (oReq.status == 200) {
+
+                        var response = oReq.responseText;
+                        if (response.indexOf("%failed%") != -1) {
+                            alert(response);
+                        } else {
+                            displaySchoolsManagementScreen("School deleted successfully")
+                        }
+                    }
+                };
+                oReq.send(oData);
+            }
+
+            var insertScreenValid;
+            function schoolDataIsValidForInsert() {
+
+                var schoolName = document.getElementById('schoolname').value;
+                var userId = document.getElementById('clerkid').value;
+                var password = document.getElementById('clerkpassword').value;
+
+                insertScreenValid = true;
+                if (!(schoolNameUnique(schoolName)))
+                    injectErrorMessage('schoolname', 'Oops - there is already a school with this name');
+                if (schoolName == '')
+                    injectErrorMessage('schoolname', 'Oops - schoolname cannot be blank');
+                if (!(userIdUnique(userId)))
+                    injectErrorMessage('clerkid', 'Oops - there is already a user with this id');
+                if (userId == '')
+                    injectErrorMessage('clerkid', 'Oops - userId cannot be blank');
+                if (password == '')
+                    injectErrorMessage('clerkpassword', 'Oops - password cannot be blank');
+
+                return insertScreenValid;
+            }
+
+            var updateScreenValid;
+            function schoolDataIsValidForUpdate() {
+
+                var oldSchoolName = document.getElementById('oldschoolname').placeholder;
+                var oldUserId = document.getElementById('olduserid').placeholder;
+
+                var schoolName = document.getElementById('oldschoolname').value;
+                var userId = document.getElementById('olduserid').value;
+                var password = document.getElementById('oldpassword').value;
+
+                updateScreenValid = true;
+                if ((oldSchoolName != schoolName) && !schoolNameUnique(schoolName))
+                    injectErrorMessage('oldschoolname', 'Oops - there is already a school with this name');
+                if (schoolName == '')
+                    injectErrorMessage('oldschoolname', 'Oops - schoolname cannot be blank');
+                if ((oldUserId != userId) && !userIdUnique(userId))
+                    injectErrorMessage('olduserid', 'Oops - there is already a user with this id');
+                if (userId == '')
+                    injectErrorMessage('olduserid', 'Oops - userId cannot be blank');
+                if (password == '')
+                    injectErrorMessage('oldpassword', 'Oops - password cannot be blank');
+
+                return updateScreenValid;
+            }
+
+            function schoolNameUnique(schoolName) {
+
+                if (schoolNames.indexOf(schoolName) == -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            function userIdUnique(userId) {
+
+                if (userIds.indexOf(userId) == -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
             function launchSchoolPage() {
 
                 var schoolsselector = document.getElementById('schoolsselector');
@@ -84,19 +352,45 @@
 
                 if (selectedSchoolId == 0)
                     return;
-
                 // add dummy version number to ensure page is refreshed
                 dateObject = new Date();
                 currentTime = dateObject.getTime();
-
                 var url = "pages.html?id=" + selectedSchoolId + "&target=governors&ver=" + currentTime;
-
                 var launchanchor = document.getElementById('launchanchor');
                 launchanchor.href = url;
                 launchanchor.click();
             }
 
-        </script>  
+            /////////////////  Service functions
+
+            var insertScreenValid;
+            var updateScreenValid;
+            function injectErrorMessage(field, errorMessage) {
+
+                // Insert "errorMessage" into the innerHTML of the error paragraph element associated
+                // with element "field" - assumed to have id "fielderror".
+                //
+                // Also set the global governorScreenValid variable
+
+                var fielderrormessageid = field + "error";
+                document.getElementById(fielderrormessageid).innerHTML = errorMessage;
+                document.getElementById(fielderrormessageid).style.color = 'red';
+
+                insertScreenValid = false;
+                updateScreenValid = false;
+            }
+
+            function clearAllErrors() {
+
+                // get all elements with class formerrormessage and blank them out
+
+                var elements = document.getElementsByClassName('formerrormessage');
+                for (var i = 0; i < elements.length; i++) {
+                    elements[i].innerHTML = '';
+                }
+            }
+
+
+        </script>
     </body>
 </html>
-

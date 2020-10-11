@@ -15,6 +15,7 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
         <!-- code for datepicker -->
+        <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet">
         <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
         <!-- sortableJS styles -->
@@ -96,10 +97,11 @@
 
         <div style = 'margin: 2vh auto 2vh auto; width: 75%; text-align: center;'>
             <div style ='padding: 2vh; background: white;'>
+                <h1>Governors System Data Manager</h1>
 
                 <!--  ++++++++++++  Controls ++++++++++++++++++++++++++ -->
 
-                <table style="width: 70%; margin: 2vh auto 2vh auto; border: 1px solid black; padding: 1.5vh; border-collapse: separate; background: white;">
+                <table style="width: 70%; margin: 4vh auto 2vh auto; border: 1px solid black; padding: 1.5vh; border-collapse: separate; background: white;">
                     <tr> 
                         <td>
                             <a class="launchpadlink" title="Add/remove/edit Governor details"
@@ -107,7 +109,7 @@
                         </td>
                         <td>
                             <a  class="launchpadlink" title="Record Attendance at Governor Meetings"
-                                onclick = "firstAccess = true; displayMeetingsScreen('', '', '', '');">Manage<br>Attendance Records</a>
+                                onclick = "firstAccess = true; displayMeetingsScreen('', '', '', '');">Manage<br>Meetings Records</a>
                         </td>
                         <td>
                             <a class="launchpadlink" title="Maintain online Document records"
@@ -261,7 +263,7 @@
                                         document.getElementById('governortelephonenumber').value = JSONObject.governor_telephone_number;
                                         document.getElementById('governoremailaddress').value = JSONObject.governor_email_address;
                                         document.getElementById('governorpostaladdress').value = JSONObject.governor_postal_address;
-                                        document.getElementById('governorappointmentdate').value = JSONObject.governor_appointment_date;
+                                        document.getElementById('governorappointmentdate').placeholder = JSONObject.governor_appointment_date;
                                         document.getElementById('governortermofoffice').value = JSONObject.governor_term_of_office;
                                         document.getElementById('governorbusinessinterests').value = JSONObject.governor_business_interests;
                                         document.getElementById('buildgovernorbuttons').innerHTML =
@@ -1198,11 +1200,16 @@
                 var oldDate = document.getElementById(elementId).value;
 
                 $('#' + elementId).datepicker();
-                $('#' + elementId).datepicker('option', 'dateFormat', 'yy-mm-dd');
-                $('#' + elementId).datepicker('option', 'changeDay', true);
-                $('#' + elementId).datepicker('option', 'changeMonth', true);
-                $('#' + elementId).datepicker('option', 'changeYear', true);
-                $('#' + elementId).datepicker('option', 'yearRange', '1999:c');
+                $('#' + elementId).datepicker('option', 'dateFormat', 'yy-mm-dd'); // set 2020-03-30 type format
+                $('#' + elementId).datepicker('option', 'changeMonth', true); // display month drop-down
+                $('#' + elementId).datepicker('option', 'changeYear', true); // display year drop-down
+                $('#' + elementId).datepicker('option', 'yearRange', '1999:c'); // 1999 to current - see https://api.jqueryui.com/datepicker/#option-yearRange
+
+                //if there's a value for the element, inject this into datepicker
+                var elementValue = document.getElementById(elementId).placeholder;
+                if (elementValue != '') {
+                    $('#' + elementId).datepicker("setDate", elementValue);
+                }
 
                 $('#' + elementId).datepicker()
                         .on('input change', function (e) {
