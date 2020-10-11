@@ -2,15 +2,15 @@
 
 require ('../includes/governor_functions.php');
 
-# As directed by helper_type :                                                       
+# As directed by helper_type :
 #
 # 'build_governing_body_display'            -  return code to display a summary view of governing body
 #                                              for given school as a page for use on the schools website
-#                                           
+#
 # 'build_governing_body_interests_display'  -  return code to display a summary view of governor business
 #                                              interests for given school as a page for use on the school's
-#                                              website                                   
-#                                           
+#                                              website
+#
 # 'build_goveror_attendance_display'        -  return code to display a summary view of goveror attendance
 #                                              for given school as a page for the schools website
 
@@ -56,7 +56,7 @@ if ($helper_type == "build_governing_body_display") {
     $governor_types = get_governor_types();
     $governor_roles = get_governor_roles();
 
-// now create a display row for each currently-defined governor 
+// now create a display row for each currently-defined governor
 
     $sql = "SELECT *
             FROM
@@ -70,7 +70,7 @@ if ($helper_type == "build_governing_body_display") {
 
     $return .= "
         <style>
-        
+
         th {
             padding: 1vw;
             text-align: left;
@@ -103,19 +103,19 @@ if ($helper_type == "build_governing_body_display") {
         $governor_postal_address = $row['governor_postal_address'];
         $governor_telephone_number = $row['governor_telephone_number'];
         $governor_email_address = $row['governor_email_address'];
-        
+
     // priority for contact-address display is email -> postal -> telephone
-        
+
         if ($governor_email_address != '') {
             $governor_contact_address = $governor_email_address;
         } else {
             if ($governor_postal_address != '') {
-                $governor_contact_address = $governor_postal_address;                 
+                $governor_contact_address = $governor_postal_address;
             } else {
                  $governor_contact_address = $governor_telephone_number;
-            }       
-        }       
-        
+            }
+        }
+
         $governor_name = "$governor_first_names $governor_surname";
         $governor_type = $governor_types[$row['governor_type_code']];
         $governor_role = $governor_roles[$row['governor_role_code']];
@@ -151,17 +151,24 @@ if ($helper_type == "build_governing_body_display") {
                 school_id = '$school_id';";
 
     $result = sql_result_for_location($sql, 3);
+
+    $clerk_first_names = '';
+    $clerk_surname = '';
+    $clerk_email_address = '';
+
     $row = mysqli_fetch_array($result);
 
-    $clerk_first_names = $row['clerk_first_names'];
-    $clerk_surname = $row['clerk_surname'];
-    $clerk_email_address = $row['clerk_email_address'];
+    if (mysqli_num_rows($result) >= 1) {
+        $clerk_first_names = $row['clerk_first_names'];
+        $clerk_surname = $row['clerk_surname'];
+        $clerk_email_address = $row['clerk_email_address'];
+    }
 
-    $return .= "  
+    $return .= "
         <div style = 'text-align: center; margin: 2vh 0 2vh 0; font-weight: bold;'>
             <span>Clerk : </span>
             <span>$clerk_first_names $clerk_surname : </span>
-            <span>$clerk_email_address</span> 
+            <span>$clerk_email_address</span>
         </div>";
 
     echo $return;
@@ -179,7 +186,7 @@ if ($helper_type == "build_governing_body_interests_display") {
     $governor_types = get_governor_types();
     $governor_roles = get_governor_roles();
 
-// now create a display row for each currently-defined governor 
+// now create a display row for each currently-defined governor
 
     $sql = "SELECT *
             FROM
@@ -193,7 +200,7 @@ if ($helper_type == "build_governing_body_interests_display") {
 
     $return .= "
         <style>
-        
+
         th {
             padding: 1vw;
             text-align: left;
@@ -219,7 +226,7 @@ if ($helper_type == "build_governing_body_interests_display") {
     while ($row = mysqli_fetch_array($result)) {
 
         $governor_first_names = $row['governor_first_names'];
-        $governor_surname = $row['governor_surname'];      
+        $governor_surname = $row['governor_surname'];
         $governor_type = $governor_types[$row['governor_type_code']];
         $governor_business_interests = $row['governor_business_interests'];
 
@@ -263,7 +270,7 @@ if ($helper_type == "build_goveror_attendance_display") {
 
     // get all the governors names, we'll need them later
 
-    $sql = "SELECT 
+    $sql = "SELECT
                 governor_id,
                 governor_first_names,
                 governor_surname
@@ -297,7 +304,7 @@ if ($helper_type == "build_goveror_attendance_display") {
 // now get all governors who were eligible to attend meetings for this school during
 // this meeting_date range
 
-    $sql = "SELECT 
+    $sql = "SELECT
                 governor_id,
                 meeting_date,
                 governor_present
@@ -313,8 +320,8 @@ if ($helper_type == "build_goveror_attendance_display") {
 // format the results in a two-dimensional associative array :
 // $governor_attendance[governor_id][meeting_date] = governor_present. The first index is just
 // a number, but the second is a string and so gets treated as an associative value, giving us
-// structures like 
-// 
+// structures like
+//
 //      [1]=>
 //           array(4) {
 //             ["2017-01-24"]=>
@@ -329,7 +336,7 @@ if ($helper_type == "build_goveror_attendance_display") {
 //
 // A further complication is that governors who have started or finished their tenure /during/
 // the period will have a reduced number of entries - so when using this array to build the
-// display-screen we should anticipate gaps    
+// display-screen we should anticipate gaps
 
     $governor_attendances = array();
 
@@ -344,16 +351,16 @@ if ($helper_type == "build_goveror_attendance_display") {
     // OK - now use $governor_attendances to build the central section of the display - a block
     // of edit/delete columns for the (historic) meetings in the date-range first_meeting_date to
     // last meeting_date (max 4 - not that it matters exactly how many as the three blocks will
-    // eventually be displayed alongside each other). The final display will contain the following 
+    // eventually be displayed alongside each other). The final display will contain the following
     // blocks:
-    //      
-    // historic_meetings_left_sidebar 
+    //
+    // historic_meetings_left_sidebar
     // historic_meetings_update_block
-    // historic_meetings_right_sidebar 
+    // historic_meetings_right_sidebar
     //
 
     $historic_meetings_update_block = "
-        
+
     <div id='historicmeetingsblock' style = 'background: white; padding-top: 2vh;'>
         <form>
             <div>";
@@ -366,10 +373,10 @@ if ($helper_type == "build_goveror_attendance_display") {
 
     for ($i = $first_meeting_date_index; $i <= $last_meeting_date_index; $i++) {
 
-        $historic_meetings_update_block .= " 
+        $historic_meetings_update_block .= "
                 <p style= 'display: inline-block; width: 10rem; text-align: center; font-weight: bold;'>$meeting_dates[$i]</p>";
     }
-    $historic_meetings_update_block .= " 
+    $historic_meetings_update_block .= "
             </div>
             <div>";
 
@@ -379,7 +386,7 @@ if ($helper_type == "build_goveror_attendance_display") {
 
         $governor_id = $key;
         $governor_name = $governors[$governor_id]['governor_first_names'] . " " . $governors[$governor_id]['governor_surname'];
-        $historic_meetings_update_block .= "  
+        $historic_meetings_update_block .= "
                 <p style= 'display: inline-block; width: 15rem; text-align: left; padding-left:2rem;'>
                     $governor_name
                 </p>";
@@ -393,8 +400,8 @@ if ($helper_type == "build_goveror_attendance_display") {
                 // at this meeting and can thus offer an update checkbox with an appropriate setting.
                 // If key is absent, just display a blank here
 
-                $historic_meetings_update_block .= " 
-                <p style= 'display: inline-block; width: 10rem; text-align: center;'>  
+                $historic_meetings_update_block .= "
+                <p style= 'display: inline-block; width: 10rem; text-align: center;'>
                     <input class = 'attendancecheckbox$meeting_date' type='checkbox' id='historicmeetingcheckbox%$governor_id%$meeting_date' name='historicmeetingcheckbox%$governor_id%$meeting_date'";
 
                 $governor_present = $governor_attendances[$governor_id][$meeting_date];
@@ -405,20 +412,20 @@ if ($helper_type == "build_goveror_attendance_display") {
                     $historic_meetings_update_block .= "
                     value = 'N'>";
                 }
-                $historic_meetings_update_block .= " 
+                $historic_meetings_update_block .= "
                     </p>";
             } else {
-                $historic_meetings_update_block .= " 
+                $historic_meetings_update_block .= "
                 <p style= 'display: inline-block; width: 10rem; text-align: center;'></p>";
             }
         }
-        $historic_meetings_update_block .= " 
+        $historic_meetings_update_block .= "
             </div>
             <div>";
     }
 
     $historic_meetings_update_block .= "
-            </div> 
+            </div>
         </form>
     </div>";
 
@@ -435,7 +442,7 @@ if ($helper_type == "build_goveror_attendance_display") {
         $next_last_meeting_date_index = $last_meeting_date_index - 1;
 
         $historic_meetings_left_sidebar .= "
-        <button style = 'border: none;' 
+        <button style = 'border: none;'
             title = 'Display earlier meetings'
             onclick='displayAttendances($school_id, \"$meeting_dates[$next_first_meeting_date_index]\", \"$meeting_dates[$next_last_meeting_date_index]\");'>
             <span class = 'oi oi-caret-left'></span>
@@ -468,7 +475,7 @@ if ($helper_type == "build_goveror_attendance_display") {
     </p>";
 
     // OK - ready to put this lot together beneath a heading record and a button to add a new
-    // meeting. Note that it might seem, at first sight, to have been possible to provide the 
+    // meeting. Note that it might seem, at first sight, to have been possible to provide the
     // "insert meeting attendance" fields alongside the update columns for historic meetings
     // but, strictly, we don't know what governors are eligible for this meeting and they might
     // not be visible in the set selected for historic display - consider for instance, the case
@@ -478,14 +485,14 @@ if ($helper_type == "build_goveror_attendance_display") {
     <h2 style='text-align: center;'>Governor Meeting Attendances for $school_name</h2>";
 
     // The historic_meeting_update_block now needs to be displayed between its sidebars
-    // Some sort of table arrangement seems the best way forward. Since we essentially only 
+    // Some sort of table arrangement seems the best way forward. Since we essentially only
     // have one row to display, flexbox is preferred
 
     $return .= "
     <div style='display:flex; justify-content: center;'>
-        <div>$historic_meetings_left_sidebar</div> 
-        <div>$historic_meetings_update_block</div> 
-        <div>$historic_meetings_right_sidebar</div> 
+        <div>$historic_meetings_left_sidebar</div>
+        <div>$historic_meetings_update_block</div>
+        <div>$historic_meetings_right_sidebar</div>
     </div>";
 
     echo $return;
@@ -493,5 +500,3 @@ if ($helper_type == "build_goveror_attendance_display") {
 
 
 disconnect_from_database();
-
-
