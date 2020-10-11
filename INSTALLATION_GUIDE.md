@@ -16,4 +16,4 @@ The system provides a mechanism for the LEA administrator to register new school
 
 Alternatively it would be possible to create an automated arrangement whereby schools registered themselves but, for the present, development of such an arrangement is left simply as a future possibility.
 
-MartinJ : Oct 2020
+MartinJ : Oct 11 2020
